@@ -3,11 +3,11 @@ const apiUrl = "http://localhost:3000/user";
 async function login(event) {
     event.preventDefault();
     
-    const username = event.target.username.value;
+    const email = event.target.email.value;
     const password = event.target.password.value;
 
     try {
-        const response = await axios.post(`${apiUrl}/login`, { username, password });
+        const response = await axios.post(`${apiUrl}/login`, { email, password });
         // console.log('Login Response:', response.data);
 
         if (response.status === 200) {

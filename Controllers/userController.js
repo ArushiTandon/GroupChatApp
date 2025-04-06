@@ -30,49 +30,49 @@ exports.signUp = async (req, res) => {
     }
 };
 
-// exports.login = async(req, res) => {
+exports.login = async(req, res) => {
    
-//     const {username, password} = req.body;
+    const {email, password} = req.body;
     
-//     try {
+    try {
         
-//         const user = await User.findOne({ where: { username } });
-//         // console.log('Found User:', user);
+        const user = await User.findOne({ where: { email } });
+        // console.log('Found User:', user);
 
-//         if (!user) {
-//             console.log('Invalid username or password');
-//             return res.status(401).json({ error: 'Invalid username or password' });
-//         }
+        if (!user) {
+            console.log('Invalid email or password');
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
 
-//         // console.log('Login - Stored Hash:', user.password);
-//         // console.log('Login - Password Match:', await bcrypt.compare(password, user.password));
+        // console.log('Login - Stored Hash:', user.password);
+        // console.log('Login - Password Match:', await bcrypt.compare(password, user.password));
 
-//         const isPasswordValid = await bcrypt.compare(password, user.password);
-//         console.log('Password Valid:', isPasswordValid);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        console.log('Password Valid:', isPasswordValid);
 
-//         if(!user || !(isPasswordValid)) {
-//             // console.log('Invalid username or password');
-//             return res.status(401).json({error: 'Invalid username or password'});
-//         }
+        if(!user || !(isPasswordValid)) {
+            // console.log('Invalid email or password');
+            return res.status(401).json({error: 'Invalid email or password'});
+        }
 
-//         const payload = {
-//             id: user.id,
-//             username: user.username,
-//         };
+        const payload = {
+            id: user.id,
+            email: user.email,
+        };
 
-//         const token = generateToken(payload);
+        const token = generateToken(payload);
 
-//         return res.status(200).json({
-//             message: 'Login successful!',
-//             token: token,
-//             redirectUrl: '/addExpense',
-//         });
+        return res.status(200).json({
+            message: 'Login successful!',
+            token: token,
+            redirectUrl: '/home',
+        });
 
-//     } catch (error) {
-//         console.error('error:', error);
-//         res.status(400).json({error: 'Error logging in'});
-//     }
-// }
+    } catch (error) {
+        console.error('error:', error);
+        res.status(400).json({error: 'Error logging in'});
+    }
+}
 
 // exports.getUserInfo = async (req, res) => {
 //     const userId = req.user.id;
