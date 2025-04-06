@@ -8,16 +8,16 @@ async function login(event) {
 
     try {
         const response = await axios.post(`${apiUrl}/login`, { email, password });
-        // console.log('Login Response:', response.data);
+        console.log('Login Response:', response.data);
 
         if (response.status === 200) {
-            // console.log("User logged in successfully");
+            console.log("User logged in successfully");
             alert(response.data.message);
 
             const token = response.data.token;
             localStorage.setItem('authToken', token);
 
-            window.location.href = "/home";
+            // window.location.href = "/home";
         }
           
     } catch (error) {

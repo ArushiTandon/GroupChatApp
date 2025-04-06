@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../Models/userModel');
 // const UserFile = require('../models/userFiles');
-// const { generateToken } = require('../middlewares/jwt');
+const { generateToken } = require('../middlewares/jwt');
 const sequelize = require('../util/db');
 
 exports.signUp = async (req, res) => {
@@ -37,7 +37,7 @@ exports.login = async(req, res) => {
     try {
         
         const user = await User.findOne({ where: { email } });
-        // console.log('Found User:', user);
+        console.log('Found User:', user);
 
         if (!user) {
             console.log('Invalid email or password');
@@ -51,7 +51,7 @@ exports.login = async(req, res) => {
         console.log('Password Valid:', isPasswordValid);
 
         if(!user || !(isPasswordValid)) {
-            // console.log('Invalid email or password');
+            console.log('Invalid email or password');
             return res.status(401).json({error: 'Invalid email or password'});
         }
 
@@ -65,7 +65,7 @@ exports.login = async(req, res) => {
         return res.status(200).json({
             message: 'Login successful!',
             token: token,
-            redirectUrl: '/home',
+            // redirectUrl: '/home',
         });
 
     } catch (error) {

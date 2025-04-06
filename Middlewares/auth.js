@@ -3,7 +3,7 @@ const localStrategy = require('passport-local').Strategy;
 const User = require('../Models/userModel');
 
 passport.use(new localStrategy(
-    { emailField: 'email', passwordField: 'password' },
+    { usernameField: 'email', passwordField: 'password' },
     async (email, password, done) => {
       try {
         console.log("received credentials:", email, password);
