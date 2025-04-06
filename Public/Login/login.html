@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="login.css" />
+
+  </head>
+  <body>
+    <h1 class="app-title">Group Chat App</h1>
+    <div class="container">
+      <div class="login-form-box">
+        <form class="login-form" id="login-form" onsubmit="login(event)">
+          <h2>Welcome Back!</h2>
+          <p>Communication made easier.</p>
+
+          <div>
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your full name"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+              required
+            />
+          </div>
+
+          <div>
+            <button id="login-btn" class="login-btn" type="submit">Login</button>
+          </div>
+
+          <div>
+            <p>Forgot password? <a href="#">Reset Password</a></p>
+            <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

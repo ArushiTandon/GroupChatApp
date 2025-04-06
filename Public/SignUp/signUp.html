@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignUp</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="signUp.css" />
+
+  </head>
+  <body>
+    <h1 class="app-title">Group Chat App</h1>
+    <div class="container">
+      <div class="SignUp-form-box">
+        <form class="SignUp-form" id="SignUp-form" onsubmit="SignUp(event)">
+          <h2>Create your free account</h2>
+          <p>Join us today by entering your details below.</p>
+
+          <div>
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your full name"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email address"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="phone">Phone</label>
+            <input
+              type="number"
+              id="phone"
+              name="phone"
+              placeholder="Enter your phone number"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+              required
+            />
+          </div>
+
+          <div>
+            <button id="submit-btn" class="submit-btn" type="submit">Sign Up</button>
+          </div>
+
+          <div>
+            <p>Already have an account? <a href="Login.html">Login</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
