@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const sequelize = require('./util/db');
 const passport = require('./middlewares/auth');
+const cors = require('cors');
 require('dotenv').config();
 
 
@@ -17,6 +18,12 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
