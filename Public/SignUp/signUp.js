@@ -12,7 +12,7 @@ async function signUp(event) {
 
     try {
       const response =  await axios.post(`${apiUrl}/signup`, user);
-        // console.log("User created successfully");
+        console.log("User created successfully");
         alert(response.data.message);
         
     } catch (error) {

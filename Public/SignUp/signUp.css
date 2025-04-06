@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -8,58 +8,46 @@
 }
 
 html, body {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(135deg, #1c1c1c, #2c2c2c); /* Dark gradient */
-}
-
-
-
-body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1c1c1c, #2c2c2c);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  box-sizing: border-box;
 }
-
+/* App Title */
 .app-title {
   position: absolute;
   top: 1.5rem;
   left: 2rem;
-  z-index: 10;
   color: #ffffff;
   font-size: 1.6rem;
-  font-weight: 700;           
-  margin-bottom: 2rem;
-  text-align: left;
+  font-weight: 700;
   letter-spacing: 0.5px;
-  background: none;        
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
 }
 
-
+/* Container */
 .container {
-  background: rgba(255, 255, 255, 0.532); /* Light & transparent */
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(18px);
-  padding: 3rem 2rem;
-  border-radius: 24px;
-  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1rem 1rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
   width: 100%;
-  max-width: 720px;
-  border: 1px solid rgba(0, 0, 0, 0.753);
+  max-width: 750px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
 }
 
-
-
-.container,
-.container * {
+/* Text color fix */
+.container, .container * {
   color: #000;
 }
 
-
-/* Heading styles */
+/* Form Headings */
 .SignUp-form-box h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -76,12 +64,12 @@ body {
 }
 
 .SignUp-form-box p a {
-  color: #000000;
+  color: #000;
   text-decoration: none;
   font-weight: 500;
 }
 
-/* Form layout */
+/* Form */
 .SignUp-form {
   display: flex;
   flex-direction: column;
@@ -102,8 +90,8 @@ label {
 input {
   padding: 0.8rem;
   border-radius: 10px;
-  border: 1px solid rgba(1, 1, 1, 0.501);
-  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 255, 255, 0.2);
   color: #000;
   font-size: 1rem;
   outline: none;
@@ -115,15 +103,13 @@ input::placeholder {
 }
 
 input:focus {
-  border-color: #ffffff;
+  border-color: #000;
 }
-
-
 
 /* Button */
 .submit-btn {
-  background: linear-gradient(to right, #000000, #000000);
-  color: white;
+  background: #000;
+  color: #fff;
   padding: 0.9rem;
   font-size: 1rem;
   border: none;
@@ -134,34 +120,32 @@ input:focus {
 }
 
 .submit-btn:hover {
-  background: #333333d2;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.578);
-  color: #000;
+  background: #333;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  color: #fff;
 }
 
-/* Responsive adjustments */
+/* Responsive */
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 1.3rem;
+    left: 1rem;
+    top: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
-  .container {
-    padding: 2rem 1.2rem;
-    border-radius: 18px;
+  .app-title {
+    font-size: 1.1rem;
+    left: 0.8rem;
+    top: 0.8rem;
   }
 
-  @media (max-width: 768px) {
-    .app-title {
-      font-size: 1.3rem;
-      left: 1rem;
-      top: 1rem;
-    }
+  .container {
+    padding: 2rem 1.2rem;
+    border-radius: 16px;
   }
-  
-  @media (max-width: 480px) {
-    .app-title {
-      font-size: 1.1rem;
-      left: 0.8rem;
-      top: 0.8rem;
-    }
-  }
-  
+
   .SignUp-form-box h2 {
     font-size: 1.6rem;
   }

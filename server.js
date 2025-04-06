@@ -6,10 +6,10 @@ require('dotenv').config();
 
 
 //Routes
-// const userRoutes = require('./Routes/userRoutes');
+const userRoutes = require('./Routes/userRoutes');
 
 //Models
-// const User = require('./Models/userModel');
+const User = require('./Models/userModel');
 
 
 const app = express();
@@ -29,7 +29,7 @@ app.get('/user/signup', (req, res) => {
 });
 
 
-// app.use('/user', userRoutes);
+app.use('/user', userRoutes);
 
 
 sequelize.sync({ alter: true })

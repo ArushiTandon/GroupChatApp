@@ -8,14 +8,14 @@
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="signUp.css" />
+    <link rel="stylesheet" href="/SignUp/signUp.css" />
 
   </head>
   <body>
     <h1 class="app-title">Group Chat App</h1>
     <div class="container">
       <div class="SignUp-form-box">
-        <form class="SignUp-form" id="SignUp-form" onsubmit="SignUp(event)">
+        <form class="SignUp-form" id="SignUp-form" onsubmit="signUp(event)">
           <h2>Create your free account</h2>
           <p>Join us today by entering your details below.</p>
 
@@ -44,7 +44,7 @@
           <div>
             <label for="phone">Phone</label>
             <input
-              type="number"
+              type="tel"
               id="phone"
               name="phone"
               placeholder="Enter your phone number"
@@ -74,4 +74,6 @@
       </div>
     </div>
   </body>
+  <script src="/SignUp/signUp.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </html>
