@@ -22,6 +22,7 @@ exports.signUp = async (req, res) => {
         
         res.status(201).json({userId: newUser.id,
             message: 'ACCOUNT CREATED!',
+            redirectUrl: '/user/login',
         })
     } catch (error) {
         await t.rollback();
@@ -56,6 +57,7 @@ exports.login = async(req, res) => {
         }
 
         const payload = {
+            username: user.username,
             id: user.id,
             email: user.email,
         };
@@ -65,7 +67,7 @@ exports.login = async(req, res) => {
         return res.status(200).json({
             message: 'Login successful!',
             token: token,
-            // redirectUrl: '/home',
+            redirectUrl: '/chats',
         });
 
     } catch (error) {
@@ -74,19 +76,23 @@ exports.login = async(req, res) => {
     }
 }
 
-// exports.getUserInfo = async (req, res) => {
-//     const userId = req.user.id;
+exports.getUsers = async (req, res) => {
+
+    const { id, username } = req.user;
     
-//     try {
-//       const user = await User.findByPk(userId, {
-//         attributes: ['id', 'username', 'email', 'isPremium'],
-//       });
-//       res.status(200).json(user);
-//     } catch (error) {
-//       console.error('Error fetching user info:', error.message);
-//       res.status(500).json({ error: 'Failed to fetch user info' });
-//     }
-//   };
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'username']
+        })
+
+        res.status(200).json({users});        
+
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({message: 'Failed to fetch users'});   
+    }
+   
+  };
   
 //   exports.getUserFiles = async (req, res) => {
 

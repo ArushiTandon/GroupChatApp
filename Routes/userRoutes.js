@@ -1,8 +1,8 @@
 const express = require('express');
-const { signUp, login } = require('../Controllers/userController')
+const { signUp, login, getUsers } = require('../Controllers/userController')
 const router = express.Router();
 const passport = require('../Middlewares/auth');
-// const { jwtAuthMiddleware } = require('../middlewares/jwt');
+const { jwtAuthMiddleware } = require('../middlewares/jwt');
 require('dotenv').config();
 
 const localAuthMid = passport.authenticate('local', {session: false});
@@ -13,8 +13,8 @@ router.post('/signup', signUp);
 // Login
 router.post('/login', localAuthMid, login);
 
-// // UserInfo
-// router.get('/userinfo', jwtAuthMiddleware, getUserInfo);
+// get all users
+router.get('/users', jwtAuthMiddleware, getUsers);
 
 // // Get user files
 // router.get('/files' , jwtAuthMiddleware, getUserFiles);

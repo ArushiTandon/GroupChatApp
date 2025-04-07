@@ -17,7 +17,7 @@ async function login(event) {
             const token = response.data.token;
             localStorage.setItem('authToken', token);
 
-            // window.location.href = "/home";
+            window.location.href = "/chats";
         }
           
     } catch (error) {

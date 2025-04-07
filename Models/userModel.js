@@ -2,8 +2,8 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../util/db');
 const bcrypt = require('bcrypt');
 
-const User = sequelize.define(
-    'User',
+const Users = sequelize.define(
+    'Users',
     {
         username: {
             type: DataTypes.STRING,
@@ -22,6 +22,7 @@ const User = sequelize.define(
         phone: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
         },
 
         password: {
@@ -29,21 +30,17 @@ const User = sequelize.define(
             allowNull: false,
         },
 
-        isPremium: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
     },
     {
         timestamps: false,
     }
 );
 
-User.beforeCreate(async (user) => {
+Users.beforeCreate(async (user) => {
     user.password = await bcrypt.hash(user.password, 10);
 });
 
-User.prototype.comparePassword = async function (userPassword) {
+Users.prototype.comparePassword = async function (userPassword) {
     try {
         const isMatch = await bcrypt.compare(userPassword, this.password);
         return isMatch;
@@ -52,4 +49,4 @@ User.prototype.comparePassword = async function (userPassword) {
     }
 };
 
-module.exports = User;
+module.exports = Users;

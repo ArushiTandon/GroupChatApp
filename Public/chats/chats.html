@@ -34,16 +34,24 @@
 
     <!-- Chat Window -->
     <section class="chat-window">
-      <div class="chat-header">Chat with User 1</div>
+      <div class="chat-header">
+      </div>
       <div class="chat-body">
-        <div class="message from-them">Hello!</div>
-        <div class="message from-me">Hi, how can I help you?</div>
+        <div class="message from-them">
+        </div>
+        <div class="message from-me">
+        </div>
       </div>
-      <div class="chat-input">
-        <input type="text" placeholder="Type your message..." />
-        <button>Send</button>
-      </div>
+
+      <form id="chat-form" onsubmit="sendMessage(event)">
+        <div class="chat-input">
+          <input type="text" id="message" placeholder="Type your message..." />
+          <button type="submit" id="sendmessage-button">Send</button>
+        </div>
+      </form>
     </section>
   </div>
+  <script src="/chats/chats.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
 </html>

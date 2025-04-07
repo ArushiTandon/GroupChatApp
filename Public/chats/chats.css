@@ -91,7 +91,7 @@
   }
   
   .from-me {
-    background-color: #0165b8d3;
+    background-color: #0b20329a;
     align-self: flex-end;
     text-align: right;
   }
@@ -108,10 +108,15 @@
   
   .chat-input button {
     padding: 10px 15px;
-    background-color: #04051e;
+    background-color: #000000;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+  }
+  
+  .selected-user {
+    background-color: #e0e0e0;
+    font-weight: bold;
   }
   
