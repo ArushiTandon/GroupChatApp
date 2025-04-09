@@ -28,8 +28,6 @@ async function sendMessage(event) {
     // console.log("Message Response:", response.data);
     // alert(response.data.message);
 
-    const chatBody = document.querySelector(".chat-body");
-
     const currentUserId = getCurrentUserId();
 
     socket.emit("send_message", {
@@ -37,15 +35,7 @@ async function sendMessage(event) {
     senderId: currentUserId,
     });
 
-
-    
-
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("message", "from-me");
-    messageElement.textContent = message;
-
-    chatBody.appendChild(messageElement);
-   
+    appendMessage("me", message);
 
   } catch (error) {
     alert("Unable to send message:", error);
@@ -123,6 +113,7 @@ function highlightSelected(userId) {
 socket.on("receive_message", (data) => {
   const currentUserId = getCurrentUserId();
 
+  
   if (data.senderId !== currentUserId) {
     appendMessage("them", data.message);
   }
