@@ -83,10 +83,31 @@ async function loadUsers() {
       userDiv.classList.add("chat-user");
       userDiv.textContent = user.username;
       userDiv.setAttribute("data-id", user.id);
-      userDiv.onclick = () => {              
-        selectedReceiverId = user.id;      
-        highlightSelected(user.id);   
-      };
+
+
+    userDiv.onclick = async () => {
+  selectedReceiverId = user.id;
+  highlightSelected(user.id);
+
+  // Clear chat body
+  const chatBody = document.querySelector(".chat-body");
+  chatBody.innerHTML = "";
+
+  // Load last 20 messages
+  const response = await axios.get(
+    `http://localhost:3000/chats/history/${user.id}?limit=20`,
+    { headers: headers }
+  );
+
+  const messages = response.data.messages;
+  const currentUserId = getCurrentUserId();
+
+  messages.forEach((msg) => {
+    const who = msg.sender_id === currentUserId ? "me" : "them";
+    appendMessage(who, msg.message);
+  });
+};
+
       container.appendChild(userDiv);
     });
   } catch (err) {
@@ -114,11 +135,13 @@ socket.on("receive_message", (data) => {
   const currentUserId = getCurrentUserId();
 
   
-  if (data.senderId !== currentUserId) {
+  if (
+    data.senderId !== currentUserId &&
+    data.senderId === selectedReceiverId
+  ) {
     appendMessage("them", data.message);
   }
 });
-
 
 
   window.onload = () => {

@@ -5,6 +5,7 @@ const { generateToken } = require('../middlewares/jwt');
 const sequelize = require('../util/db');
 const { Op } = require('sequelize');
 
+
 exports.signUp = async (req, res) => {
     
     const {username, email, phone, password} = req.body;

@@ -16,7 +16,5 @@ router.post('/login', localAuthMid, login);
 // get all users
 router.get('/users', jwtAuthMiddleware, getUsers);
 
-// // Get user files
-// router.get('/files' , jwtAuthMiddleware, getUserFiles);
 
 module.exports = router;
