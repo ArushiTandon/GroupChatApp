@@ -3,6 +3,7 @@ const User = require('../Models/userModel');
 // const UserFile = require('../models/userFiles');
 const { generateToken } = require('../middlewares/jwt');
 const sequelize = require('../util/db');
+const { Op } = require('sequelize');
 
 exports.signUp = async (req, res) => {
     
@@ -78,10 +79,13 @@ exports.login = async(req, res) => {
 
 exports.getUsers = async (req, res) => {
 
-    const { id, username } = req.user;
+    const userId = req.user.id;
     
     try {
         const users = await User.findAll({
+            where: {
+                id: { [Op.ne]: userId }, 
+              },
             attributes: ['id', 'username']
         })
 
