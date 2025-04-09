@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 const sequelize = require('./util/db');
 const passport = require('./Middlewares/auth');
 const cors = require('cors');
@@ -20,12 +22,28 @@ const Private = require('./Models/privateModel');
 
 const app = express();
 const PORT = process.env.PORT;
+const server = http.createServer(app); 
+const io = new Server(server);
+
 
 app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cors());
+
+//socket
+io.on('connection', (socket) => {
+    console.log('a user connected', socket.id);
+  
+    socket.on('send_message', (data) => {
+        console.log("Broadcasting message:", data.message);
+        io.emit('receive_message', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+})
 
 
 //serving static files
@@ -65,9 +83,9 @@ Private.belongsTo(User, { foreignKey: 'sender_id' });
 Private.belongsTo(User, { foreignKey: 'receiver_id' });
 
 
-sequelize.sync({ alter: true })
+sequelize.sync({ alter: false })
     .then(() => {
         console.log('Database synced');
-        app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));
+        server.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));
     })
     .catch((err) => console.error('Failed to sync database:', err));

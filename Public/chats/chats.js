@@ -1,3 +1,4 @@
+const socket = io();
 const apiUrl = "http://localhost:3000/chats";
 const token = localStorage.getItem("authToken");
 const headers = {
@@ -24,21 +25,26 @@ async function sendMessage(event) {
       { receiver_id, message },
       { headers: headers }
     );
-    console.log("Message Response:", response.data);
-    alert(response.data.message);
+    // console.log("Message Response:", response.data);
+    // alert(response.data.message);
 
     const chatBody = document.querySelector(".chat-body");
-    const sentMessage = response.data.message;
+
+    const currentUserId = getCurrentUserId();
+
+    socket.emit("send_message", {
+    message: message,
+    senderId: currentUserId,
+    });
+
+
+    
 
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", "from-me");
-    messageElement.textContent = sentMessage;
+    messageElement.textContent = message;
 
     chatBody.appendChild(messageElement);
-    chatBody.scrollTop = chatBody.scrollHeight; // auto scroll to latest
-
-    appendMessage("me", message);
-    message.value = "";
    
 
   } catch (error) {
@@ -48,12 +54,26 @@ async function sendMessage(event) {
   event.target.reset();
 }
 
+function getCurrentUserId() {
+  const token = localStorage.getItem("authToken");
+  if (!token) return null;
+
+  try {
+    const base64Payload = token.split(".")[1];
+    const decodedPayload = JSON.parse(atob(base64Payload));
+    return decodedPayload.id;
+  } catch (err) {
+    console.error("Error decoding token:", err);
+    return null;
+  }
+}
+
 function appendMessage(who, message) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("message", who === "me" ? "from-me" : "from-them");
     msgDiv.textContent = message;
     document.querySelector(".chat-body").appendChild(msgDiv);
-  }
+}
 
   
 async function loadUsers() {
@@ -73,9 +93,9 @@ async function loadUsers() {
       userDiv.classList.add("chat-user");
       userDiv.textContent = user.username;
       userDiv.setAttribute("data-id", user.id);
-      userDiv.onclick = () => {
-        selectedReceiverId = user.id;
-        highlightSelected(user.id);
+      userDiv.onclick = () => {              
+        selectedReceiverId = user.id;      
+        highlightSelected(user.id);   
       };
       container.appendChild(userDiv);
     });
@@ -99,6 +119,14 @@ function highlightSelected(userId) {
     selected.classList.add("selected-user");
   }
 }
+
+socket.on("receive_message", (data) => {
+  const currentUserId = getCurrentUserId();
+
+  if (data.senderId !== currentUserId) {
+    appendMessage("them", data.message);
+  }
+});
 
 
 

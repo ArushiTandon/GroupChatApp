@@ -14,6 +14,8 @@ async function signUp(event) {
       const response =  await axios.post(`${apiUrl}/signup`, user);
         console.log("User created successfully");
         alert(response.data.message);
+
+        window.location.href = "/login";
         
     } catch (error) {
         console.error("Unable to SignUp:", error);

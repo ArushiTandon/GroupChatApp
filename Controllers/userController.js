@@ -85,7 +85,10 @@ exports.getUsers = async (req, res) => {
             attributes: ['id', 'username']
         })
 
-        res.status(200).json({users});        
+        res.status(200).json({
+            users: users,
+            redirectUrl: '/chats',
+        });        
 
     } catch (error) {
         console.error('Error fetching users:', error);
