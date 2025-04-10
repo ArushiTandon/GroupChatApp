@@ -22,6 +22,11 @@ const UserGroups = sequelize.define(
             }
         },
 
+        is_admin: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
     },
     {
         timestamps: true,

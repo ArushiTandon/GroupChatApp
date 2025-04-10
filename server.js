@@ -11,6 +11,7 @@ require('dotenv').config();
 //Routes
 const userRoutes = require('./Routes/userRoutes');
 const messageRoutes = require('./Routes/messageRoutes');
+const groupRoutes = require('./Routes/groupRoutes');
 
 //Models
 const User = require('./Models/userModel');
@@ -64,15 +65,16 @@ app.get('/chats', (req, res) => {
 
 app.use('/user', userRoutes);
 app.use('/chats', messageRoutes);
+app.use('/groups', groupRoutes);
 
 //Associations
 User.hasMany(Private, { foreignKey: 'sender_id' });
 User.hasMany(Private, { foreignKey: 'receiver_id' });
 User.hasMany(GroupMessage, { foreignKey: 'user_id' });
-User.belongsToMany(Groups, { through: UserGroups });
+User.belongsToMany(Groups, { through: UserGroups, foreignKey: 'user_id', otherKey: 'group_id' });
 
 Groups.hasMany(GroupMessage, { foreignKey: 'group_id' });
-Groups.belongsToMany(User, { through: UserGroups });
+Groups.belongsToMany(User, { through: UserGroups, foreignKey: 'group_id', otherKey: 'user_id' });
 
 UserGroups.belongsTo(User, { foreignKey: 'user_id' });
 

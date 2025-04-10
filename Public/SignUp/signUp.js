@@ -15,7 +15,7 @@ async function signUp(event) {
         console.log("User created successfully");
         alert(response.data.message);
 
-        window.location.href = "/login";
+        window.location.href = "/user/login";
         
     } catch (error) {
         console.error("Unable to SignUp:", error);

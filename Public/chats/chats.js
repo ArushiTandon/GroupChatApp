@@ -108,7 +108,7 @@ async function loadUsers() {
   });
 };
 
-      container.appendChild(userDiv);
+    container.appendChild(userDiv);
     });
   } catch (err) {
     console.error("Error loading users:", err);
@@ -144,7 +144,99 @@ socket.on("receive_message", (data) => {
 });
 
 
+//groups
+
+async function openModal(event) {
+  event.preventDefault();
+  // console.log("openModal called");
+  document.getElementById("groupModal").classList.remove("hidden");
+
+  const response = await axios.get("http://localhost:3000/user/users", { headers: headers });
+  const users = response.data.users;
+  const currentUserId = getCurrentUserId();
+
+  const userList = document.getElementById("userList");
+  userList.innerHTML = "";
+
+  users.forEach(user => {
+    if (user.id === currentUserId) return;
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = user.id;
+
+    const label = document.createElement("label");
+    label.textContent = user.username;
+
+    const div = document.createElement("div");
+    div.appendChild(checkbox);
+    div.appendChild(label);
+
+    userList.appendChild(div);
+  });
+}
+
+function closeModal() {
+  // console.log("closeModal called");
+
+ document.getElementById("groupModal").classList.add("hidden");
+}
+  
+async function submitGroup() {
+    const group_name = document.getElementById("groupName").value;
+    const checkboxes = document.querySelectorAll("#userList input:checked");
+    const members = [...checkboxes].map(cb => parseInt(cb.value));
+  
+    try {
+      await axios.post("http://localhost:3000/groups/create", {
+        group_name,
+        members
+      }, { headers: headers });
+  
+      alert("Group created!");
+      closeModal();
+    } catch (err) {
+      console.error("Group creation failed:", err);
+      alert("Error creating group");
+    }
+}
+
+
+async function loadGroups() {
+
+  try {
+    
+    const response = await axios.get("http://localhost:3000/groups/getGroups", { headers: headers});
+    const groups = response.data.groups;
+    console.log("groups from backend:", response.data.groups);
+
+
+    if (!groups || groups.length === 0) {
+      console.log("No groups found for this user.");
+      return;
+    }
+
+    const container = document.querySelector(".chat-items");
+
+
+    groups.forEach(group => {
+      const groupDiv = document.createElement("div");
+      groupDiv.classList.add("chat-user");  // You can style differently if needed
+      groupDiv.textContent = group.group_name;
+      groupDiv.setAttribute("data-group-id", group.id);
+
+      // groupDiv.onclick = () => { /* load group messages in future */ }
+
+      container.appendChild(groupDiv);
+    });
+  } catch (error) {
+    console.error("Error loading groups:", error);
+    
+  }
+}
+
   window.onload = () => {
     loadUsers();
+    loadGroups()
   };
   
