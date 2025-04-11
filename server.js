@@ -20,6 +20,9 @@ const Groups = require('./Models/groupsModel');
 const GroupMessage = require('./Models/groupMessage');
 const Private = require('./Models/privateModel');
 
+//controllers
+const { saveGroupMessage } = require('./Controllers/groupController');
+
 
 const app = express();
 const PORT = process.env.PORT;
@@ -37,9 +40,28 @@ io.on('connection', (socket) => {
     console.log('a user connected', socket.id);
   
     socket.on('send_message', (data) => {
-        console.log("Broadcasting message:", data.message);
+        // console.log("Broadcasting message:", data.message);
         io.emit('receive_message', data);
     });
+
+    socket.on("join_groups", (groupIds) => {
+        groupIds.forEach(groupId => {
+          socket.join(`group_${groupId}`);
+          // console.log(`User ${socket.id} joined group_${groupId}`);
+        });
+      });
+    
+      socket.on("send_group_message",async  ({ groupId, message, senderId }) => {
+        
+        await saveGroupMessage(groupId, senderId, message);
+        
+        // Send only to users in this group
+        io.to(`group_${groupId}`).emit("receive_group_message", {
+          groupId,
+          senderId,
+          message,
+        });
+      });
 
     socket.on('disconnect', () => {
         console.log('user disconnected');

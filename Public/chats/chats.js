@@ -6,42 +6,49 @@ const headers = {
 };
 
 let selectedReceiverId = null;
+let selectedGroupId = null;
 
 async function sendMessage(event) {
   event.preventDefault();
 
   const message = event.target.message.value;
-  const receiver_id = selectedReceiverId;
-
-  if (!selectedReceiverId) {
-    alert("Please select a user to send the message.");
-    return;
-  }
-
-
+  // const receiver_id = selectedReceiverId;
+  const currentUserId = getCurrentUserId();
   try {
-    const response = await axios.post(
-      `${apiUrl}/send`,
-      { receiver_id, message },
-      { headers: headers }
-    );
-    // console.log("Message Response:", response.data);
-    // alert(response.data.message);
 
-    const currentUserId = getCurrentUserId();
+    if (selectedGroupId) {
 
-    socket.emit("send_message", {
-    message: message,
-    senderId: currentUserId,
-    });
+      socket.emit("send_group_message", {
+        groupId: selectedGroupId,
+        message,
+        senderId: currentUserId
+      });
 
-    appendMessage("me", message);
+      appendMessage("me", message);
 
-  } catch (error) {
-    alert("Unable to send message:", error);
+    } else if (selectedReceiverId) {
+
+      const response = await axios.post(
+        `${apiUrl}/send`,
+        { receiver_id: selectedReceiverId, message },
+        { headers }
+      );
+
+      socket.emit("send_message", {
+        message: message,
+        senderId: currentUserId
+      });
+
+      appendMessage("me", message);
+    } else {
+      alert("Select a user or group to send a message.");
+    }
+    event.target.reset();
+  } catch (err) {
+    console.error("Error sending message:", err);
+    alert("Failed to send message. Please try again.");
   }
 
-  event.target.reset();
 }
 
 function getCurrentUserId() {
@@ -59,20 +66,20 @@ function getCurrentUserId() {
 }
 
 function appendMessage(who, message) {
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", who === "me" ? "from-me" : "from-them");
-    msgDiv.textContent = message;
-    document.querySelector(".chat-body").appendChild(msgDiv);
+  const msgDiv = document.createElement("div");
+  msgDiv.classList.add("message", who === "me" ? "from-me" : "from-them");
+  msgDiv.textContent = message;
+  document.querySelector(".chat-body").appendChild(msgDiv);
 }
 
-  
+
 async function loadUsers() {
   try {
 
     const response = await axios.get(
-        `http://localhost:3000/user/users`,
-        { headers: headers }
-      );
+      `http://localhost:3000/user/users`,
+      { headers: headers }
+    );
 
     const users = response.data.users;
     const container = document.querySelector(".chat-items");
@@ -85,45 +92,46 @@ async function loadUsers() {
       userDiv.setAttribute("data-id", user.id);
 
 
-    userDiv.onclick = async () => {
-  selectedReceiverId = user.id;
-  highlightSelected(user.id);
+      userDiv.onclick = async () => {
+        selectedReceiverId = user.id;
+        highlightSelected(user.id, "user");
 
-  // Clear chat body
-  const chatBody = document.querySelector(".chat-body");
-  chatBody.innerHTML = "";
+        const chatBody = document.querySelector(".chat-body");
+        chatBody.innerHTML = "";
 
-  // Load last 20 messages
-  const response = await axios.get(
-    `http://localhost:3000/chats/history/${user.id}?limit=20`,
-    { headers: headers }
-  );
+        // Load last 20 messages
+        const response = await axios.get(
+          `http://localhost:3000/chats/history/${user.id}?limit=20`,
+          { headers: headers }
+        );
 
-  const messages = response.data.messages;
-  const currentUserId = getCurrentUserId();
+        const messages = response.data.messages;
+        const currentUserId = getCurrentUserId();
 
-  messages.forEach((msg) => {
-    const who = msg.sender_id === currentUserId ? "me" : "them";
-    appendMessage(who, msg.message);
-  });
-};
+        messages.forEach((msg) => {
+          const who = msg.sender_id === currentUserId ? "me" : "them";
+          appendMessage(who, msg.message);
+        });
+      };
 
-    container.appendChild(userDiv);
+      container.appendChild(userDiv);
     });
   } catch (err) {
     console.error("Error loading users:", err);
   }
 }
 
-function highlightSelected(userId) {
-  // Remove highlight from all users
+function highlightSelected(id, type = "user") {
+  // Remove highlight from all users and groups
   document.querySelectorAll(".chat-user").forEach(el => {
     el.classList.remove("selected-user");
   });
 
-  // Find the user with matching data-id and highlight it
+  // Get correct attribute
+  const attr = type === "user" ? "data-id" : "data-group-id";
+
   const selected = [...document.querySelectorAll(".chat-user")].find(
-    el => el.getAttribute("data-id") == userId
+    el => el.getAttribute(attr) == id
   );
 
   if (selected) {
@@ -131,18 +139,17 @@ function highlightSelected(userId) {
   }
 }
 
-socket.on("receive_message", (data) => {
+
+socket.on("receive_group_message", (data) => {
   const currentUserId = getCurrentUserId();
 
-  
   if (
-    data.senderId !== currentUserId &&
-    data.senderId === selectedReceiverId
+    data.groupId === selectedGroupId &&
+    data.senderId !== currentUserId
   ) {
     appendMessage("them", data.message);
   }
 });
-
 
 //groups
 
@@ -179,36 +186,36 @@ async function openModal(event) {
 function closeModal() {
   // console.log("closeModal called");
 
- document.getElementById("groupModal").classList.add("hidden");
+  document.getElementById("groupModal").classList.add("hidden");
 }
-  
+
 async function submitGroup() {
-    const group_name = document.getElementById("groupName").value;
-    const checkboxes = document.querySelectorAll("#userList input:checked");
-    const members = [...checkboxes].map(cb => parseInt(cb.value));
-  
-    try {
-      await axios.post("http://localhost:3000/groups/create", {
-        group_name,
-        members
-      }, { headers: headers });
-  
-      alert("Group created!");
-      closeModal();
-    } catch (err) {
-      console.error("Group creation failed:", err);
-      alert("Error creating group");
-    }
+  const group_name = document.getElementById("groupName").value;
+  const checkboxes = document.querySelectorAll("#userList input:checked");
+  const members = [...checkboxes].map(cb => parseInt(cb.value));
+
+  try {
+    await axios.post("http://localhost:3000/groups/create", {
+      group_name,
+      members
+    }, { headers: headers });
+
+    alert("Group created!");
+    closeModal();
+  } catch (err) {
+    console.error("Group creation failed:", err);
+    alert("Error creating group");
+  }
 }
 
 
 async function loadGroups() {
 
   try {
-    
-    const response = await axios.get("http://localhost:3000/groups/getGroups", { headers: headers});
+
+    const response = await axios.get("http://localhost:3000/groups/getGroups", { headers: headers });
     const groups = response.data.groups;
-    console.log("groups from backend:", response.data.groups);
+    // console.log("groups from backend:", response.data.groups);
 
 
     if (!groups || groups.length === 0) {
@@ -221,22 +228,56 @@ async function loadGroups() {
 
     groups.forEach(group => {
       const groupDiv = document.createElement("div");
-      groupDiv.classList.add("chat-user");  // You can style differently if needed
+      groupDiv.classList.add("chat-user");
       groupDiv.textContent = group.group_name;
       groupDiv.setAttribute("data-group-id", group.id);
 
-      // groupDiv.onclick = () => { /* load group messages in future */ }
+      groupDiv.onclick = async () => {
+        selectedGroupId = group.id;
+        selectedReceiverId = null;
+        highlightSelected(group.id, "group");
+        document.querySelector(".chat-body").innerHTML = "";
+        
+
+
+        // currentGroupId
+        console.log(response.data.messages);
+        console.log("Selected Group ID:", group.id);
+
+
+        // group chat history 
+
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/groups/messages/${group.id}`,
+            { headers: headers }
+          );
+
+          const messages = response.data.messages;
+          const currentUserId = getCurrentUserId();
+
+          messages.forEach(msg => {
+            const who = msg.user_id === currentUserId ? "me" : "them";
+            appendMessage(who, `${msg.User.username}: ${msg.message}`);
+          });
+        } catch (err) {
+          console.error("Error loading group chat history:", err);
+        }
+      };
 
       container.appendChild(groupDiv);
     });
+
+    const groupIds = groups.map(g => g.id);
+    socket.emit("join_groups", groupIds);
   } catch (error) {
     console.error("Error loading groups:", error);
-    
+
   }
 }
 
-  window.onload = () => {
-    loadUsers();
-    loadGroups()
-  };
-  
+
+window.onload = () => {
+  loadUsers();
+  loadGroups()
+};

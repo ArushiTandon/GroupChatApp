@@ -40,7 +40,7 @@ exports.login = async(req, res) => {
     try {
         
         const user = await User.findOne({ where: { email } });
-        console.log('Found User:', user);
+        // console.log('Found User:', user);
 
         if (!user) {
             console.log('Invalid email or password');

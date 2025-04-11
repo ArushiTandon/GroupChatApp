@@ -12,4 +12,9 @@ router.post("/create", jwtAuthMiddleware, groupController.createGroup);
 //get groups
 router.get("/getGroups", jwtAuthMiddleware, groupController.getGroups);
 
+//get group chat
+// Routes/groupRoutes.js
+router.get('/messages/:groupId', jwtAuthMiddleware, groupController.getGroupMessages);
+
+
 module.exports = router;
