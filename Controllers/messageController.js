@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
-const User = require('../Models/userModel');
 const Private = require('../Models/privateModel');
+const UserFile = require('../Models/userFile');
 const sequelize = require('../util/db');
+const { uploadToS3 } = require('../Services/aws');
 const { Op } = require('sequelize');
 
 
@@ -57,3 +57,5 @@ exports.getChatHistory = async (req, res) => {
       res.status(500).json({ error: "Failed to load chat history" });
     }
   };
+
+  exports.uploadMedia = uploadToS3;

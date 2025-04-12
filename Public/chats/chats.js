@@ -14,43 +14,61 @@ async function sendMessage(event) {
   event.preventDefault();
 
   const message = event.target.message.value;
-  // const receiver_id = selectedReceiverId;
+  const fileInput = document.getElementById("mediaFile");
+  const file = fileInput.files[0];
   const currentUserId = getCurrentUserId();
+  let mediaUrl = null; // Using a local variable here
+
   try {
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    if (selectedGroupId) {
-
-      socket.emit("send_group_message", {
-        groupId: selectedGroupId,
-        message,
-        senderId: currentUserId
-      });
-
-      appendMessage("me", message);
-
-    } else if (selectedReceiverId) {
-
-      const response = await axios.post(
-        `${apiUrl}/send`,
-        { receiver_id: selectedReceiverId, message },
+      // Notice: letting Axios set the Content-Type automatically.
+      const uploadResponse = await axios.post(
+        "http://localhost:3000/chats/upload", // backend route to handle file upload
+        formData,
         { headers }
       );
 
+      mediaUrl = uploadResponse.data.fileUrl;
+      fileInput.value = ""; // Reset file input after successful upload
+    }
+
+    // Group message handling
+    if (selectedGroupId) {
+      socket.emit("send_group_message", {
+        groupId: selectedGroupId,
+        message,
+        senderId: currentUserId,
+        mediaUrl,
+      });
+      appendMessage("me", message, mediaUrl);
+
+    // Private (one-on-one) message handling
+    } else if (selectedReceiverId) {
+      await axios.post(
+        `${apiUrl}/send`,
+        { receiver_id: selectedReceiverId, message, mediaUrl },
+        { headers }
+      );
+
+      // Include mediaUrl in socket emission for private messages, if desired.
       socket.emit("send_message", {
-        message: message,
-        senderId: currentUserId
+        message,
+        senderId: currentUserId,
+        mediaUrl, 
       });
 
-      appendMessage("me", message);
+      appendMessage("me", message, mediaUrl);
     } else {
       alert("Select a user or group to send a message.");
     }
-    event.target.reset();
+    event.target.reset(); // Reset the entire form
   } catch (err) {
     console.error("Error sending message:", err);
     alert("Failed to send message. Please try again.");
   }
-
 }
 
 function getCurrentUserId() {
