@@ -59,7 +59,28 @@
         <button onclick="submitGroup()">Create</button>
         <button onclick="closeModal()">Cancel</button>
       </div>
-    </div>   
+    </div>  
+    
+    
+<!-- Invite Modal -->
+<div id="inviteModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Invite Users to Group</h3>
+    <div id="inviteUserList"></div>
+    <button onclick="submitInvites()">Send Invites</button>
+    <button onclick="closeInviteModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Manage Members Modal -->
+<div id="manageModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Manage Members</h3>
+    <div id="memberList"></div>
+    <button onclick="closeManageModal()">Close</button>
+  </div>
+</div>
+
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

@@ -126,21 +126,29 @@ html {
   position: fixed;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.6);
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 8px;
   width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
 
 .hidden {
   display: none;

@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const User = require('../Models/userModel');
-// const UserFile = require('../models/userFiles');
 const { generateToken } = require('../middlewares/jwt');
 const sequelize = require('../util/db');
 const { Op } = require('sequelize');
@@ -102,21 +101,3 @@ exports.getUsers = async (req, res) => {
    
   };
   
-//   exports.getUserFiles = async (req, res) => {
-
-//     try {
-//         const userId = req.user.id;
-
-//         const files = await UserFile.findAll({
-//             where: { userId },
-//             order: [['createdAt', 'DESC']],
-//         });
-
-//         res.json({success: true, files});
-        
-//     } catch (error) {
-//         console.error('Error fetching user files:', error);
-//         res.status(500).json({success: false, message: 'Failed to fetch'});   
-//     }
-
-//   };

@@ -7,6 +7,8 @@ const headers = {
 
 let selectedReceiverId = null;
 let selectedGroupId = null;
+let currentInviteGroupId = null;
+let currentManageGroupId = null;
 
 async function sendMessage(event) {
   event.preventDefault();
@@ -224,25 +226,28 @@ async function loadGroups() {
     }
 
     const container = document.querySelector(".chat-items");
+    // container.innerHTML = "";
 
-
+    
+    
     groups.forEach(group => {
       const groupDiv = document.createElement("div");
       groupDiv.classList.add("chat-user");
       groupDiv.textContent = group.group_name;
       groupDiv.setAttribute("data-group-id", group.id);
 
+      console.log("GROUPPPP: ",group.id, group.is_admin)
       groupDiv.onclick = async () => {
         selectedGroupId = group.id;
         selectedReceiverId = null;
         highlightSelected(group.id, "group");
+        renderAdminControls(group.id, group.is_admin);
         document.querySelector(".chat-body").innerHTML = "";
-        
 
 
         // currentGroupId
-        console.log(response.data.messages);
-        console.log("Selected Group ID:", group.id);
+        // console.log(response.data.messages);
+        // console.log("Selected Group ID:", group.id);
 
 
         // group chat history 
@@ -265,6 +270,12 @@ async function loadGroups() {
         }
       };
 
+      const inviteBtn = document.createElement("button");
+      inviteBtn.textContent = "➕ Invite";
+      inviteBtn.onclick = () => openInviteModal(group.id);
+
+
+      groupDiv.appendChild(inviteBtn);
       container.appendChild(groupDiv);
     });
 
@@ -276,6 +287,168 @@ async function loadGroups() {
   }
 }
 
+function renderAdminControls(groupId, isAdmin) {
+  const chatHeader = document.querySelector(".chat-header");
+  chatHeader.innerHTML = ""; // Clear previous controls
+
+  if (isAdmin) {
+    const inviteBtn = document.createElement("button");
+    inviteBtn.textContent = "Invite User";
+    inviteBtn.onclick = () => openInviteModal(groupId);
+
+    const manageBtn = document.createElement("button");
+    manageBtn.textContent = "Manage Members";
+    manageBtn.onclick = () => openManageModal(groupId);
+
+    chatHeader.appendChild(inviteBtn);
+    chatHeader.appendChild(manageBtn);
+  }
+}
+
+
+async function openInviteModal(groupId) {
+  currentInviteGroupId = groupId;
+  document.getElementById("inviteModal").classList.remove("hidden");
+
+  try {
+    // Fetch users not in group
+    const response = await axios.get(`http://localhost:3000/groups/nonmembers/${groupId}`, {
+      headers
+    });
+
+    const users = response.data.users;
+    const userList = document.getElementById("inviteUserList");
+    userList.innerHTML = "";
+
+    users.forEach(user => {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = user.id;
+
+      const label = document.createElement("label");
+      label.textContent = user.username;
+
+      const div = document.createElement("div");
+      div.appendChild(checkbox);
+      div.appendChild(label);
+
+      userList.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Error fetching non-members:", err);
+    alert("Failed to load users.");
+    closeInviteModal();
+  }
+}
+
+function closeInviteModal() {
+  document.getElementById("inviteModal").classList.add("hidden");
+  currentInviteGroupId = null;
+}
+
+async function submitInvites() {
+  const checkboxes = document.querySelectorAll("#inviteUserList input:checked");
+  const userIds = [...checkboxes].map(cb => parseInt(cb.value));
+
+  try {
+    await axios.post(`http://localhost:3000/groups/invite/${currentInviteGroupId}`, {
+      userIds
+    }, { headers: headers });
+
+    alert("Users invited to group!");
+    closeInviteModal();
+  } catch (err) {
+    console.error("Error inviting users:", err);
+    alert("Error sending invites.");
+  }
+}
+
+async function openManageModal(groupId) {
+  currentManageGroupId = groupId;
+  document.getElementById("manageModal").classList.remove("hidden");
+
+  try {
+    const response = await axios.get(`http://localhost:3000/groups/members/${groupId}`, {
+      headers
+    });
+
+    const members = response.data.members;
+    const currentUserId = getCurrentUserId();
+    const memberList = document.getElementById("memberList");
+    memberList.innerHTML = "";
+
+    members.forEach(member => {
+      const div = document.createElement("div");
+      div.classList.add("member-item");
+      div.textContent = `${member.username} ${member.is_admin ? "👑" : ""}`;
+
+      // Promote to admin button
+      if (!member.is_admin) {
+        const promoteBtn = document.createElement("button");
+        promoteBtn.textContent = "Make Admin";
+        promoteBtn.dataset.userId = member.userId;
+        promoteBtn.addEventListener("click", () => {
+          const userId = promoteBtn.dataset.userId;
+          makeAdmin(groupId, userId); 
+        });
+        
+        div.appendChild(promoteBtn);
+      }
+
+      // Remove button (don't allow removing yourself)
+      if (member.id !== currentUserId) {
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.dataset.userId = member.userId;
+        removeBtn.addEventListener("click", () => {
+          const userId = removeBtn.dataset.userId;
+          removeMember(groupId, userId); 
+        });
+        div.appendChild(removeBtn);
+      }
+
+      memberList.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Error loading group members:", err);
+    alert("Failed to load members");
+    closeManageModal();
+  }
+}
+
+function closeManageModal() {
+  document.getElementById("manageModal").classList.add("hidden");
+  currentManageGroupId = null;
+}
+
+async function makeAdmin(groupId, userId) {
+  try {
+    await axios.patch(`http://localhost:3000/groups/make-admin/${groupId}/${userId}`, null, {
+      headers: headers
+    });
+
+    alert("User promoted to admin!");
+    openManageModal(groupId); // Refresh list
+  } catch (err) {
+    console.error("Error promoting user:", err);
+    alert("Failed to promote");
+  }
+}
+
+async function removeMember(groupId, userId) {
+  try {
+    await axios.delete(`http://localhost:3000/groups/remove-member/${groupId}/${userId}`, {
+      headers
+    });
+    alert("User removed from group.");
+    openManageModal(groupId); // Refresh list
+    loadGroups(); // Refresh group list in sidebar
+  } catch (err) {
+    console.error("Error removing user:", err);
+    alert("Failed to remove user");
+  }
+}
 
 window.onload = () => {
   loadUsers();
