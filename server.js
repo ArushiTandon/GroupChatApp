@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const sequelize = require('./util/db');
 const passport = require('./Middlewares/auth');
 const cors = require('cors');
+require('./Services/archiver');
 require('dotenv').config();
 
 
