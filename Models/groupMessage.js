@@ -25,7 +25,11 @@ const GroupMessage = sequelize.define(
                 model: 'Users',
                 key: 'id'
             }
-        }
+        },
+        mediaUrl: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          },
 
     },
     {

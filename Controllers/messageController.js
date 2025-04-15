@@ -11,12 +11,13 @@ exports.postMessage = async (req, res) => {
     try {
         const result = await sequelize.transaction(async (t) => {
 
-            const { receiver_id, message } = req.body;
+            const { receiver_id, message, mediaUrl } = req.body;
             const sender_id = req.user.id; 
             const newMessage = await Private.create({
                 sender_id,
                 receiver_id,
                 message,
+                mediaUrl,
             }, { transaction: t });
 
             return newMessage;

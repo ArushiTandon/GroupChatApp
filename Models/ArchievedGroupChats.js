@@ -24,6 +24,10 @@ const ArchivedGroup = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    mediaUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,

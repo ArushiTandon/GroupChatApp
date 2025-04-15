@@ -37,37 +37,63 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 //socket
+const userSocketMap = {}; 
+
 io.on('connection', (socket) => {
-    console.log('a user connected', socket.id);
-  
-    socket.on('send_message', (data) => {
-        // console.log("Broadcasting message:", data.message);
-        io.emit('receive_message', data);
-    });
+  console.log('a user connected', socket.id);
 
-    socket.on("join_groups", (groupIds) => {
-        groupIds.forEach(groupId => {
-          socket.join(`group_${groupId}`);
-          // console.log(`User ${socket.id} joined group_${groupId}`);
-        });
-      });
-    
-      socket.on("send_group_message",async  ({ groupId, message, senderId }) => {
-        
-        await saveGroupMessage(groupId, senderId, message);
-        
-        // Send only to users in this group
-        io.to(`group_${groupId}`).emit("receive_group_message", {
-          groupId,
-          senderId,
-          message,
-        });
-      });
+  // When client registers after connecting
+  socket.on('register_user', (userId) => {
+    userSocketMap[userId] = socket.id;
+    console.log(`Registered user ${userId} with socket ${socket.id}`);
+  });
 
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
+  // Handle private messages
+  socket.on('send_message', (data) => {
+    const { receiverId, message, senderId, mediaUrl} = data;
+    const receiverSocketId = userSocketMap[receiverId];
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('receive_message', {
+        message,
+        senderId,
+        mediaUrl, 
+      });
+    }
+  });
+
+  // Handle group joining
+  socket.on("join_groups", (groupIds) => {
+    groupIds.forEach(groupId => {
+      socket.join(`group_${groupId}`);
     });
-})
+  });
+
+  // Handle group messages
+  socket.on("send_group_message", async ({ groupId, message, senderId, mediaUrl }) => {
+    await saveGroupMessage(groupId, message, senderId, mediaUrl);
+
+    io.to(`group_${groupId}`).emit("receive_group_message", {
+      groupId,
+      senderId,
+      message,
+      mediaUrl,
+    });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+
+    // Clean up userSocketMap
+    for (const [userId, socketId] of Object.entries(userSocketMap)) {
+      if (socketId === socket.id) {
+        delete userSocketMap[userId];
+        break;
+      }
+    }
+  });
+});
+
 
 
 //serving static files
@@ -108,7 +134,7 @@ Private.belongsTo(User, { foreignKey: 'sender_id' });
 Private.belongsTo(User, { foreignKey: 'receiver_id' });
 
 
-sequelize.sync({ alter: false })
+sequelize.sync({ alter: false }) 
     .then(() => {
         console.log('Database synced');
         server.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));

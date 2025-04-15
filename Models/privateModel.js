@@ -26,6 +26,11 @@ const Private = sequelize.define(
             allowNull: false,
         },
 
+        mediaUrl: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          },
+
         read: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,

@@ -1,4 +1,6 @@
 const socket = io();
+const currentUserId = getCurrentUserId();
+socket.emit('register_user', currentUserId);
 const apiUrl = "http://localhost:3000/chats";
 const token = localStorage.getItem("authToken");
 const headers = {
@@ -17,25 +19,26 @@ async function sendMessage(event) {
   const fileInput = document.getElementById("mediaFile");
   const file = fileInput.files[0];
   const currentUserId = getCurrentUserId();
-  let mediaUrl = null; // Using a local variable here
+  let mediaUrl = null;  
 
   try {
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
 
-      // Notice: letting Axios set the Content-Type automatically.
+      
       const uploadResponse = await axios.post(
-        "http://localhost:3000/chats/upload", // backend route to handle file upload
+        "http://localhost:3000/chats/upload",
         formData,
         { headers }
       );
 
       mediaUrl = uploadResponse.data.fileUrl;
+      console.log("📸 Uploaded mediaUrl:", mediaUrl);
+
       fileInput.value = ""; // Reset file input after successful upload
     }
 
-    // Group message handling
     if (selectedGroupId) {
       socket.emit("send_group_message", {
         groupId: selectedGroupId,
@@ -45,7 +48,6 @@ async function sendMessage(event) {
       });
       appendMessage("me", message, mediaUrl);
 
-    // Private (one-on-one) message handling
     } else if (selectedReceiverId) {
       await axios.post(
         `${apiUrl}/send`,
@@ -53,18 +55,18 @@ async function sendMessage(event) {
         { headers }
       );
 
-      // Include mediaUrl in socket emission for private messages, if desired.
       socket.emit("send_message", {
         message,
         senderId: currentUserId,
         mediaUrl, 
+        receiverId: selectedReceiverId
       });
 
       appendMessage("me", message, mediaUrl);
     } else {
       alert("Select a user or group to send a message.");
     }
-    event.target.reset(); // Reset the entire form
+    event.target.reset();
   } catch (err) {
     console.error("Error sending message:", err);
     alert("Failed to send message. Please try again.");
@@ -85,12 +87,31 @@ function getCurrentUserId() {
   }
 }
 
-function appendMessage(who, message) {
+function appendMessage(who, message, mediaUrl = null) {
+  console.log("👉 appendMessage mediaUrl:", mediaUrl);
   const msgDiv = document.createElement("div");
   msgDiv.classList.add("message", who === "me" ? "from-me" : "from-them");
-  msgDiv.textContent = message;
+
+  // Text message
+  if (message) {
+    const textNode = document.createElement("p");
+    textNode.textContent = message;
+    msgDiv.appendChild(textNode);
+  }
+
+  // Image/media message
+  if (mediaUrl) {
+    const media = document.createElement("img");
+    media.src = mediaUrl;
+    media.alt = "media";
+    media.style.maxWidth = "200px";
+    media.style.marginTop = "5px";
+    msgDiv.appendChild(media);
+  }
+
   document.querySelector(".chat-body").appendChild(msgDiv);
 }
+
 
 
 async function loadUsers() {
@@ -130,7 +151,7 @@ async function loadUsers() {
 
         messages.forEach((msg) => {
           const who = msg.sender_id === currentUserId ? "me" : "them";
-          appendMessage(who, msg.message);
+          appendMessage(who, msg.message, msg.mediaUrl);
         });
       };
 
@@ -160,19 +181,23 @@ function highlightSelected(id, type = "user") {
 }
 
 
-socket.on("receive_group_message", (data) => {
+socket.on("receive_message", (data) => {
+  logger.log("Received message:", data);
   const currentUserId = getCurrentUserId();
-
-  if (
-    data.groupId === selectedGroupId &&
-    data.senderId !== currentUserId
-  ) {
-    appendMessage("them", data.message);
+  if (data.senderId !== currentUserId) {
+    appendMessage("them", data.message, data.mediaUrl);
   }
 });
 
-//groups
+socket.on("receive_group_message", (data) => {
+  const currentUserId = getCurrentUserId();
+  if (data.groupId === selectedGroupId && data.senderId !== currentUserId) {
+    appendMessage("them", data.message, data.mediaUrl);
+  }
+});
 
+
+//groups
 async function openModal(event) {
   event.preventDefault();
   // console.log("openModal called");

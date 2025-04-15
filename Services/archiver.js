@@ -3,10 +3,10 @@ const { Op } = require('sequelize');
 const sequelize = require('../util/db');
 
 const Private = require('../Models/privateModel');
-const ArchivedPrivate = require('../Models/archivedPrivate');
+const ArchivedPrivate = require('../Models/ArchievedPrivateChats');
 
 const GroupMessage = require('../Models/groupMessage');
-const ArchivedGroupMessage = require('../Models/archivedGroupMessage');
+const ArchivedGroupMessage = require('../Models/ArchievedGroupChats');
 
 // CRON — Every night at 2 AM
 cron.schedule('0 2 * * *', async () => {

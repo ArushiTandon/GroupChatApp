@@ -15,6 +15,10 @@ const ArchivedPrivate = sequelize.define('ArchivedPrivate', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  mediaUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   tableName: 'ArchivedChats',
